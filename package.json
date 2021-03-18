@@ -1,0 +1,24 @@
+{
+  "name": "@fmma/parser",
+  "version": "1.0.0",
+  "description": "Parser combinators.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fmma/parser.git"
+  },
+  "keywords": [
+    "parser",
+    "combinators",
+    "functional"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fmma/parser/issues"
+  },
+  "homepage": "https://github.com/fmma/parser#readme"
+}
