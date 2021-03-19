@@ -141,13 +141,11 @@ export class Parser<A> {
         return ps.reduce((p1, p2) => p1.choice(p2));
     }
 
-    fatal(error: Error): Parser<A> {
+    hook(callback: (success: boolean, result: A | undefined, parsedText: string, remainingText: string) => void): Parser<A> {
         return new Parser(cs => {
             const r = this.run(cs);
-            if (r == null) {
-                error.message += ": Unexpected:\n>>> " + cs;
-                throw error;
-            }
+            const i = r?.[1] ?? 0;
+            callback(r != null, r?.[0], cs.substring(0, i), cs.substring(i));
             return r;
         });
     }
