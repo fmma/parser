@@ -15,7 +15,8 @@ declare global {
         surround<T>(this: Parser<T>, p0: string, p1: string): Parser<T>
         surround<T, T1, T2>(this: Parser<T>, p0: Parser<T1>, p1: Parser<T2>): Parser<T>
         token<T>(this: Parser<T>): Parser<T>
-        parseFile<T>(this: Parser<T>, filePath: string): ParseResult<T>
+        reduce<T>(this: Parser<T>, op: Parser<(a: T, b: T) => T>): Parser<T>
+        reduceRight<T>(this: Parser<T>, op: Parser<(a: T, b: T) => T>): Parser<T>
     }
 }
 
@@ -27,6 +28,22 @@ Function.prototype.trailing = trailing;
 Function.prototype.leading = function <T, T1>(this: Parser<T>, p0: Parser<T1>) { return P.leading(this, p0); }
 Function.prototype.surround = surround;
 Function.prototype.token = function <T>(this: Parser<T>) { return P.token(this); }
+Function.prototype.reduce = function<T>(this: Parser<T>, op: Parser<(a: T, b: T) => T>): Parser<T> {
+    return this.separate(op, true).transform(x => {
+        function f(a: T, b: T, i: number) {
+            return x.s[i - 1](a, b);
+        }
+        return x.e.reduce(f);
+    });
+}
+Function.prototype.reduceRight = function<T>(this: Parser<T>, op: Parser<(a: T, b: T) => T>): Parser<T> {
+    return this.separate(op, true).transform(x => {
+        function f(a: T, b: T, i: number) {
+            return x.s[i](b, a);
+        }
+        return x.e.reduceRight(f);
+    });
+}
 
 function trailing<T, T1>(this: Parser<T>, p0: Parser<T1> | string): Parser<T> {
     if (typeof p0 === 'string')
