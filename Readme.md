@@ -4,24 +4,41 @@ A tiny functional parser combinator library for TypeScript.
 
 `npm install @fmma-npm/parser`
 
-# Example
+# Examples
 
 ``` typescript
-import { Parser } from '@fmma-npm/parser';
+import { P } from '@fmma-npm/parser';
 
-const numberParser = Parser.sat(/^\d+/).map(x => Number(x));
-const whitespaceParser = Parser.sat(/^\s+/);
+const numberParser = P.int;
 
-const threeNumbers = Parser.do(
-    whitespaceParser.optional(),
-    numberParser,
-    whitespaceParser,
-    numberParser,
-    whitespaceParser,
-    numberParser,
-    whitespaceParser.optional()
-).map(([_1, first, _2, second, _3, third, _4]) => ({ first, second, third }));
+const threeNumbers = P.object({
+    first: numberParser,
+    second: numberParser,
+    third: numberParser
+});
 
-console.log(numberParser.run('123')); // Prints [123, 3]
-console.log(threeNumbers.run(' 10 20   30 ')); // Prints [{ first: 10, second: 20, third: 30}, 12]
+console.log(numberParser('123')); // { value: 123, read: 3 }
+console.log(threeNumbers(' 10 20   30 ')); // Prints { value: { first: 10, second: 20, third: 30 }, read: 11 }
+```
+
+## Tiny JSON parser
+``` typescript
+import { Parser, P } from '@fmma-npm/parser';
+
+export type JSON = number | boolean | null | string | JSON[] | { [key: string]: JSON };
+
+const json: Parser<JSON> = P.choices(
+    P.keyword('true', true),
+    P.keyword('false', false),
+    P.keyword('null', null),
+    P.jsNumber,
+    P.doubleQuotedString,
+    P.tuple(P.doubleQuotedString.trailing(':'), src => json(src))
+        .separate(',')
+        .surround('{', '}')
+        .transform(Object.fromEntries),
+    ((src: string) => json(src))
+        .separate(',')
+        .surround('[', ']')
+).trailing(P.whitespace);
 ```
