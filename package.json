@@ -1,6 +1,6 @@
 {
   "name": "@fmma-npm/parser",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Parser combinators.",
   "main": "lib/parser-combinators.js",
   "types": "lib/parser-combinators.d.ts",
@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/fmma/parser/issues"
   },
-  "homepage": "https://github.com/fmma/parser#readme"
+  "homepage": "https://github.com/fmma/parser#readme",
+  "files": [
+    "lib"
+  ]
 }
