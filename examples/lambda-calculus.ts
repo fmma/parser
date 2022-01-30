@@ -4,7 +4,6 @@ type Expr = string | ['app', Expr, Expr] | ['lam', string, Expr];
 
 export const expr = (src: string): ParseResult<Expr> => expr0(src);
 
-
 const variable = P.regExp(/\s*[a-z]/).transform(x => x[0].trimStart());
 
 const atom = P.choices(variable, expr.surround('(', ')'));
@@ -13,9 +12,9 @@ const app = atom
     .many(true)
     .transform(x => x.reduce((a, b) => ['app', a, b]));
 
-const lambda: Parser<Expr> = 
+const lambda: Parser<Expr> =
     P.tuple(
-        variable.trailing('=>'), 
+        variable.trailing('=>'),
         expr
     )
     .transform(([x, e]) => ['lam', x, e]);
