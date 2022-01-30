@@ -17,6 +17,7 @@ declare global {
         token<T>(this: Parser<T>): Parser<T>
         reduce<T>(this: Parser<T>, op: Parser<(a: T, b: T) => T>): Parser<T>
         reduceRight<T>(this: Parser<T>, op: Parser<(a: T, b: T) => T>): Parser<T>
+        endOfSource<T>(this: Parser<T>): Parser<T>
     }
 }
 
@@ -28,7 +29,7 @@ Function.prototype.trailing = trailing;
 Function.prototype.leading = function <T, T1>(this: Parser<T>, p0: Parser<T1>) { return P.leading(this, p0); }
 Function.prototype.surround = surround;
 Function.prototype.token = function <T>(this: Parser<T>) { return P.token(this); }
-Function.prototype.reduce = function<T>(this: Parser<T>, op: Parser<(a: T, b: T) => T>): Parser<T> {
+Function.prototype.reduce = function <T>(this: Parser<T>, op: Parser<(a: T, b: T) => T>): Parser<T> {
     return this.separate(op, true).transform(x => {
         function f(a: T, b: T, i: number) {
             return x.s[i - 1](a, b);
@@ -36,13 +37,20 @@ Function.prototype.reduce = function<T>(this: Parser<T>, op: Parser<(a: T, b: T)
         return x.e.reduce(f);
     });
 }
-Function.prototype.reduceRight = function<T>(this: Parser<T>, op: Parser<(a: T, b: T) => T>): Parser<T> {
+Function.prototype.reduceRight = function <T>(this: Parser<T>, op: Parser<(a: T, b: T) => T>): Parser<T> {
     return this.separate(op, true).transform(x => {
         function f(a: T, b: T, i: number) {
             return x.s[i](b, a);
         }
         return x.e.reduceRight(f);
     });
+}
+Function.prototype.endOfSource = function <T>(this: Parser<T>): Parser<T> {
+    return this.trailing(src => {
+        if (src.trim() === '')
+            return { v: undefined, r: src.length };
+        return null;
+    })
 }
 
 function trailing<T, T1>(this: Parser<T>, p0: Parser<T1> | string): Parser<T> {
@@ -100,7 +108,7 @@ export class P {
             return null;
         }
     }
-    
+
     static choicesString<T extends string[]>(...ss: T): Parser<T[number]> {
         const ps = ss.map(P.tokenString);
         return P.choices(...ps);
@@ -189,7 +197,7 @@ export class P {
 
     static string(string: string): Parser<string> {
         return src => {
-            if(src.startsWith(string)) {
+            if (src.startsWith(string)) {
                 return {
                     v: string,
                     r: string.length
@@ -229,7 +237,7 @@ export class P {
     static optional<T>(p: Parser<T>): Parser<T | undefined> {
         return src => {
             const r = p(src);
-            if(r == null) 
+            if (r == null)
                 return { v: undefined, r: 0 };
             return r;
         }
@@ -238,9 +246,9 @@ export class P {
     static trailing<T, T1>(p: Parser<T>, p0: Parser<T1>): Parser<T> {
         return src => {
             const r = p(src);
-            if(r == null) return null;
+            if (r == null) return null;
             const r0 = p0(src.substring(r.r));
-            if(r0 == null) return null;
+            if (r0 == null) return null;
             return { v: r.v, r: r.r + r0.r };
         }
     }
@@ -248,18 +256,18 @@ export class P {
     static leading<T, T1>(p: Parser<T>, p0: Parser<T1>): Parser<T1> {
         return src => {
             const r = p(src);
-            if(r == null) return null;
+            if (r == null) return null;
             const r0 = p0(src.substring(r.r));
-            if(r0 == null) return null;
+            if (r0 == null) return null;
             return { v: r0.v, r: r.r + r0.r };
         }
     }
 
     static surround<T, T1, T2>(p0: Parser<T1>, p: Parser<T>, p1: Parser<T2>): Parser<T> {
         return src => {
-            const r0 = p0(src); if(r0 == null) return null;
-            const r  = p(src.substring(r0.r)); if(r == null) return null;
-            const r1 = p1(src.substring(r0.r + r.r)); if(r1 == null) return null;
+            const r0 = p0(src); if (r0 == null) return null;
+            const r = p(src.substring(r0.r)); if (r == null) return null;
+            const r1 = p1(src.substring(r0.r + r.r)); if (r1 == null) return null;
             return { v: r.v, r: r0.r + r.r + r1.r };
         }
     }
@@ -271,7 +279,7 @@ export class P {
     static tokenString(s: string): Parser<string> {
         return src => {
             const i = src.search(/\S|$/);
-            if(src.substring(i).startsWith(s)) {
+            if (src.substring(i).startsWith(s)) {
                 return {
                     v: s,
                     r: s.length + i
@@ -286,7 +294,7 @@ export class P {
     static keyword<T>(kw: string, v?: T): Parser<T | string> {
         return src => {
             const i = src.search(/\S|$/);
-            if(src.substring(i).startsWith(kw)) {
+            if (src.substring(i).startsWith(kw)) {
                 return {
                     v: v ?? kw,
                     r: kw.length + i

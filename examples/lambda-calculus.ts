@@ -6,7 +6,10 @@ export const expr = (src: string): ParseResult<Expr> => expr0(src);
 
 const variable = P.regExp(/\s*[a-z]/).transform(x => x[0].trimStart());
 
-const atom = P.choices(variable, expr.surround('(', ')'));
+const atom = P.choices(
+    variable, 
+    expr.surround('(', ')')
+);
 
 const app = atom
     .many(true)
@@ -21,5 +24,7 @@ const lambda: Parser<Expr> =
 
 const expr0 = P.choices(lambda, app);
 
-console.log(JSON.stringify(expr('f => (x => x x) (x => f (x x))'), null, 2))
-console.log(JSON.stringify(expr('(x => y => y (z => x x y z)) (x => y => y (z => x x y z))'), null, 2))
+const lambdaExpressionParser = expr.endOfSource();
+
+console.log(JSON.stringify(lambdaExpressionParser('f => (x => x x) (x => f (x x))'), null, 2));
+console.log(JSON.stringify(lambdaExpressionParser('(x => y => y (z => x x y z)) (x => y => y (z => x x y z))'), null, 2));
