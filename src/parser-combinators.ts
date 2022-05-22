@@ -195,7 +195,7 @@ export class P {
         }
     }
 
-    static string(string: string): Parser<string> {
+    static string<T extends string = string>(string: T): Parser<T> {
         return src => {
             if (src.startsWith(string)) {
                 return {
@@ -276,7 +276,7 @@ export class P {
         return P.whitespace.leading(p);
     }
 
-    static tokenString(s: string): Parser<string> {
+    static tokenString<T extends string = string>(s: T): Parser<T> {
         return src => {
             const i = src.search(/\S|$/);
             if (src.substring(i).startsWith(s)) {
@@ -289,9 +289,9 @@ export class P {
         }
     }
 
-    static keyword<T>(kw: string): Parser<string>;
-    static keyword<T>(kw: string, v: T): Parser<T>;
-    static keyword<T>(kw: string, v?: T): Parser<T | string> {
+    static keyword<T, S extends string = string>(kw: S): Parser<S>;
+    static keyword<T, S extends string = string>(kw: S, v: T): Parser<T>;
+    static keyword<T, S extends string = string>(kw: S, v?: T): Parser<T | S> {
         return src => {
             const i = src.search(/\S|$/);
             if (src.substring(i).startsWith(kw)) {

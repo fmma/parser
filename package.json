@@ -1,6 +1,6 @@
 {
   "name": "@fmma-npm/parser",
-  "version": "3.1.2",
+  "version": "3.1.3",
   "description": "Parser combinators.",
   "main": "lib/parser-combinators.js",
   "types": "lib/parser-combinators.d.ts",

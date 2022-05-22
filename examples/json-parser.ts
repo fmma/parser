@@ -40,19 +40,19 @@ var fs = require('fs');
 var performance = require('perf_hooks');
 
 const txt: string = fs.readFileSync('./examples/sample.json').toString();
-console.time('json-parser') 
+console.time('json-parser')
 let result1 = jsonParser(txt);
-console.timeEnd('json-parser') 
-console.time('JSON.parse') 
+console.timeEnd('json-parser')
+console.time('JSON.parse')
 let result2 = JSON.parse(txt);
-console.timeEnd('JSON.parse') 
+console.timeEnd('JSON.parse')
 console.log('json-parser and JSON.parse gives same result', JSON.stringify(result1?.v) === JSON.stringify(result2));
 
- 
-console.time('JSON.parse') 
+
+console.time('JSON.parse')
 let result3 = JSON.parse(txt);
-console.timeEnd('JSON.parse') 
-console.time('json-parser') 
+console.timeEnd('JSON.parse')
+console.time('json-parser')
 let result4 = jsonParser(txt);
 console.timeEnd('json-parser')
 console.log('json-parser and JSON.parse gives same result', JSON.stringify(result3) === JSON.stringify(result4?.v));
