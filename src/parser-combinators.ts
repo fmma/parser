@@ -7,7 +7,7 @@ declare global {
     interface Function {
         optional<T>(this: Parser<T>): Parser<T | undefined>
         transform<T, U>(this: Parser<T>, f: (x: T) => U): Parser<U>
-        guard<T>(this: Parser<T>, f: (x: T) => boolean): Parser<T>
+        guard<T, U extends T>(this: Parser<T>, f: (x: T) => x is U): Parser<U>
         separate<T>(this: Parser<T>, pSep: string, nonEmpty?: boolean, allowTrailing?: boolean): Parser<T[]>
         separate<T, T2>(this: Parser<T>, pSep: Parser<T2>, nonEmpty?: boolean, allowTrailing?: boolean): Parser<{ e: T[], s: T2[] }>
         many<T>(this: Parser<T>, nonEmpty?: boolean): Parser<T[]>
@@ -23,7 +23,7 @@ declare global {
 }
 
 Function.prototype.transform = function <T, U>(this: Parser<T>, f: (x: T) => U) { return P.transform(this, f); }
-Function.prototype.guard = function<T>(this: Parser<T>, f: (x: T) => boolean) { return P.guard(this, f); }
+Function.prototype.guard = function <T, U extends T>(this: Parser<T>, f: (x: T) => x is U) { return P.guard(this, f); }
 Function.prototype.optional = function <T>(this: Parser<T>) { return P.optional(this); }
 Function.prototype.separate = separate;
 Function.prototype.many = function <T>(this: Parser<T>, nonEmpty?: boolean) { return P.many(this, nonEmpty); }
@@ -158,12 +158,12 @@ export class P {
         }
     }
 
-    static guard<T>(p0: Parser<T>, f: (x: T) => boolean): Parser<T> {
+    static guard<T, U extends T>(p0: Parser<T>, f: (x: T) => x is U): Parser<U> {
         return src => {
             const r = p0(src);
-            if(r != null && !f(r.v))
+            if (r == null || !f(r.v))
                 return null;
-            return r;
+            return r as ParseResult<U>;
         }
     }
 
