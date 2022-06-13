@@ -318,7 +318,7 @@ export class P {
     }
 
     static whitespace = P.transform(P.regExp(/\s*/), x => x[0]);
-    static int = P.transform(P.regExp(/^\s*\d*/), x => Number(x[0]));
+    static int = P.transform(P.regExp(/^\s*(0|[1-9][0-9]*)/), x => Number(x[0]));
     static jsNumber = P.transform(P.regExp(/^\s*-?(?=[1-9]|0(?!\d))\d+(\.\d+)?([eE][+-]?\d+)?/), x => +x[0]);
     static doubleQuotedString = P.transform(P.regExp(/^\s*"([^"\\]*|\\["\\bfnrt/]|\\u[0-9a-f]{4})*"/), x => {
         const i = x[0].indexOf('"')
